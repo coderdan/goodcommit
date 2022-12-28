@@ -1,33 +1,44 @@
+use dialoguer::{theme::ColorfulTheme, Select};
+use git_busy::{get_commit_messages, spawn_cmd};
+use std::env::args;
 use std::error::Error;
-use gpt3::generate_text;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let prompt = r#"This is a diff from a recent change of the ore-rs Rust library. Explain what was changed.
-
-    diff --git a/src/scheme/bit2.rs b/src/scheme/bit2.rs
-    index 9dd0b4d..ab244a7 100644
-    --- a/src/scheme/bit2.rs
-    +++ b/src/scheme/bit2.rs
-    @@ -39,11 +39,7 @@ type EncryptLeftResult<R, const N: usize> = Result<Left<OreAes128<R>, N>, OREErr
-     type EncryptResult<R, const N: usize> = Result<CipherText<OreAes128<R>, N>, OREError>;
-     
-     fn cmp(a: u8, b: u8) -> u8 {
-    -    if a > b {
-    -        1u8
-    -    } else {
-    -        0u8
-    -    }
-    +    u8::from(a > b)
-     }
-     
-     impl<R: Rng + SeedableRng> ORECipher for OreAes128<R> {
-    "#;
+    let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
+    let prompt = format!("This is a diff from a recent change of a library. Explain what was changed in two short sentences.\n{}", diff);
     let api_key = "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";
+    let args = args().collect::<Vec<String>>();
+    let mut new_args: Vec<String> = vec!["git".to_string(), "commit".to_string()]; // TODO: remove git
     let client = reqwest::Client::new();
 
-    let answer = generate_text(&client, api_key, "alpha", prompt, 0.8, 100).await?;
-    println!("Answer: {}", answer);
+    if !args.contains(&String::from("-m")) && !args.contains(&String::from("--message")) {
+        let answer =
+            get_commit_messages(&client, api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
 
+        let items: Vec<String> = answer
+            .choices
+            .iter()
+            .map(|choice| choice.text.trim().to_string())
+            .collect();
+        let selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Which commit message do you prefer?")
+            .items(&items)
+            .default(0)
+            .report(false)
+            .clear(true)
+            .interact()?;
+
+        new_args.push("--message".into());
+        new_args.push(format!("\"{}\"", items[selection].replace('"', "\\\"")));
+    }
+
+    // passing through all flags to git commit
+    for item in args.iter().skip(1) {
+        new_args.push(item.to_string());
+    }
+    let output = spawn_cmd("echo", &new_args); // TODO: replace echo with git
+
+    println!("\n{}", output);
     Ok(())
 }
