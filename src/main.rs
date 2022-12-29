@@ -7,10 +7,10 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-	let is_nocolor = env::var("NO_COLOR").unwrap_or_else(|_| String::from("unset")) != String::from("unset");
+	let is_nocolor = env::var("NO_COLOR").unwrap_or_else(|_| String::from("unset")) != *"unset";
 	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
 
-	if diff.len() == 0 {
+	if diff.is_empty() {
 		let flags: Vec<String> = if is_nocolor {
 			vec!["status".into()]
 		} else {
@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 	let api_key = env::var("GPT_API_KEY").unwrap_or_else(|_| String::from("unset"));
 
-	if api_key == "unset".to_string() {
+	if api_key == *"unset" {
 		println!("Please set the GPT_API_KEY environment variable.");
 		std::process::exit(exitcode::NOINPUT);
 	}
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 			.choices
 			.iter()
 			.map(|choice| {
-				choice.text.replace("\"", "`").replace("Commit:", "").replace("Commit message:", "").trim().to_string()
+				choice.text.replace('"', "`").replace("Commit:", "").replace("Commit message:", "").trim().to_string()
 			})
 			.collect();
 		let selection = Select::with_theme(&ColorfulTheme::default())
