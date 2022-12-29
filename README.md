@@ -20,7 +20,7 @@ If you supply a `-m` or `--message` flag GPT3 will not be consulted and instead 
 ## Requirements
 
 You will need an API key for GPT3 as an environment variable called `GPT_API_KEY`.
-Go to https://beta.openai.com/account/api-keys and create an account and the required key.
+Go to https://beta.openai.com/account/api-keys to create an account and the required key.
 
 💡 _Large diffs won't work well so keep them small_
 

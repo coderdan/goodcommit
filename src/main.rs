@@ -1,36 +1,29 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use edit::edit;
-use git_busy::{get_commit_messages, spawn_cmd};
+use git_busy::{check_diff_get_error, get_commit_messages, spawn_cmd};
 use std::env;
 use std::env::args;
 use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-	let is_nocolor = env::var("NO_COLOR").unwrap_or_else(|_| String::from("unset")) != *"unset";
 	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
 
-	if diff.is_empty() {
-		let flags: Vec<String> = if is_nocolor {
-			vec!["status".into()]
-		} else {
-			vec!["-c".into(), "color.status=always".into(), "status".into()]
-		};
-
-		let output = spawn_cmd("git", &flags);
-		println!("{}", output);
+	let diff_error = check_diff_get_error(&diff);
+	if !diff_error.is_empty() {
+		println!("{}", diff_error);
 		std::process::exit(exitcode::NOINPUT);
 	}
 
 	let api_key = env::var("GPT_API_KEY").unwrap_or_else(|_| String::from("unset"));
 
 	if api_key == *"unset" {
-		println!("Please set the GPT_API_KEY environment variable.");
+		println!("Please set the GPT_API_KEY environment variable.\nGo to https://beta.openai.com/account/api-keys to create an account and the required key.");
 		std::process::exit(exitcode::NOINPUT);
 	}
 
 	let args = args().collect::<Vec<String>>();
-	let mut git_args: Vec<String> = vec!["git".to_string(), "commit".to_string()]; // TODO: remove git
+	let mut git_args: Vec<String> = vec!["commit".to_string()];
 
 	if !args.contains(&String::from("-m")) && !args.contains(&String::from("--message")) {
 		let prompt =
@@ -67,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	for item in args.iter().skip(1) {
 		git_args.push(item.to_string());
 	}
-	let output = spawn_cmd("echo", &git_args); // TODO: replace echo with git
+	let output = spawn_cmd("git", &git_args);
 
 	println!("\n{}", output);
 	Ok(())
