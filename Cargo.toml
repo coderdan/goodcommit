@@ -15,7 +15,10 @@ categories = ["command-line-interface", "command-line-utilities", "science", "te
 reqwest = { version = "0.11.13", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.91"
-tokio = { version = "1.17.0", features = [ "macros", "rt-multi-thread" ] }
+tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
 dialoguer = "0.10.2"
 edit = "0.1.4"
 exitcode = "1.1.2"
+
+[dev-dependencies]
+temp-env = "0.3.1"

@@ -20,7 +20,7 @@ If you supply a `-m` or `--message` flag GPT3 will not be consulted and instead 
 ## Requirements
 
 You will need an API key for GPT3 as an environment variable called `GPT_API_KEY`.
-Go to https://beta.openai.com/account/api-keys and create an account and the required key.
+Go to https://beta.openai.com/account/api-keys to create an account and the required key.
 
 💡 _Large diffs won't work well so keep them small_
 
@@ -36,7 +36,7 @@ cargo install git-busy
 Usage: git busy [<options>] [--] <pathspec>...
 ```
 
-💡 _Any arguments and flags are passed on to `git commit`._
+💡 _Any arguments and flags are passed onto `git commit`._
 
 ## License
 Licensed under the [GNU GPL-3.0-or-later](https://github.com/coderdan/goodcommit/blob/main/LICENSE).
