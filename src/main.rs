@@ -1,7 +1,6 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use edit::edit;
-use git_busy::{check_diff_get_error, get_commit_messages, spawn_cmd};
-use std::env;
+use git_busy::{check_diff_get_error, get_api_key, get_commit_messages, spawn_cmd};
 use std::env::args;
 use std::error::Error;
 
@@ -9,15 +8,15 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
 	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
 
+	// check if there is a diff at all
 	let diff_error = check_diff_get_error(&diff);
 	if !diff_error.is_empty() {
 		println!("{}", diff_error);
 		std::process::exit(exitcode::NOINPUT);
 	}
 
-	let api_key = env::var("GPT_API_KEY").unwrap_or_else(|_| String::from("unset"));
-
-	if api_key == *"unset" {
+	let api_key = get_api_key();
+	if api_key.is_empty() {
 		println!("Please set the GPT_API_KEY environment variable.\nGo to https://beta.openai.com/account/api-keys to create an account and the required key.");
 		std::process::exit(exitcode::NOINPUT);
 	}
@@ -53,7 +52,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 		let msg = edit(items[selection].replace('"', "\\\""))?;
 		git_args.push("--message".into());
-		git_args.push(format!("\"{}\"", msg));
+		git_args.push(format!("\"{}\"", msg.trim()));
 	}
 
 	// passing through all flags to git commit

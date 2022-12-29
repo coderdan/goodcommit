@@ -81,3 +81,23 @@ fn test_check_diff_get_error() {
 	assert!(check_diff_get_error(&"").len() > 0);
 	assert!(check_diff_get_error(&".").len() == 0);
 }
+
+pub fn get_api_key() -> String {
+	env::var("GPT_API_KEY").unwrap_or_else(|_| String::from(""))
+}
+
+#[cfg(test)]
+mod lib {
+	extern crate temp_env;
+	use super::*;
+
+	#[test]
+	fn test_get_api_key_with_env_var() {
+		temp_env::with_var_unset("GPT_API_KEY", || assert!(get_api_key().is_empty()));
+	}
+
+	#[test]
+	fn test_get_api_key_without_env_var() {
+		temp_env::with_var("GPT_API_KEY", Some("somekey"), || assert!(!get_api_key().is_empty()));
+	}
+}
