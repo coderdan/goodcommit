@@ -1,12 +1,12 @@
 [package]
-name = "gpt3"
-version = "0.1.0"
+name = "git-busy"
+version = "1.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 reqwest = { version = "0.11.13", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.91"
 tokio = { version = "1.17.0", features = [ "macros", "rt-multi-thread" ] }
+dialoguer = "0.10.2"
+exitcode = "1.1.2"
