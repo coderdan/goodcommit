@@ -1,6 +1,6 @@
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 #[derive(Serialize)]
 struct GenerateTextRequest<'a> {
@@ -51,9 +51,8 @@ pub async fn get_commit_messages<'a>(
 pub fn spawn_cmd(cmd: &str, args: &[String]) -> String {
     let output = Command::new(cmd)
         .args(args)
-        .stdout(Stdio::piped())
         .output()
         .expect("Failed to execute process");
 
-    String::from_utf8_lossy(&output.stdout).to_string()
+    String::from_utf8(output.stdout).expect("Not UTF-8")
 }
