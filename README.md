@@ -36,7 +36,7 @@ cargo install git-busy
 Usage: git busy [<options>] [--] <pathspec>...
 ```
 
-💡 _Any arguments and flags are passed on to `git commit`._
+💡 _Any arguments and flags are passed onto `git commit`._
 
 ## License
 Licensed under the [GNU GPL-3.0-or-later](https://github.com/coderdan/goodcommit/blob/main/LICENSE).
