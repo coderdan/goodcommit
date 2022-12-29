@@ -1,22 +1,23 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use edit::edit;
 use git_busy::{get_commit_messages, spawn_cmd};
+use std::env;
 use std::env::args;
 use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+	let is_nocolor = env::var("NO_COLOR").unwrap_or_else(|_| String::from("unset")) != String::from("unset");
 	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
 
 	if diff.len() == 0 {
-		let output = spawn_cmd(
-			"git",
-			&[
-				"-c".to_string(),
-				"color.status=always".to_string(),
-				"status".to_string(),
-			],
-		);
+		let flags: Vec<String> = if is_nocolor {
+			vec!["status".into()]
+		} else {
+			vec!["-c".into(), "color.status=always".into(), "status".into()]
+		};
+
+		let output = spawn_cmd("git", &flags);
 		println!("{}", output);
 		std::process::exit(exitcode::NOINPUT);
 	}
