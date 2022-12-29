@@ -1,4 +1,5 @@
-use dialoguer::{theme::ColorfulTheme, Editor, Select};
+use dialoguer::{theme::ColorfulTheme, Select};
+use edit::edit;
 use git_busy::{get_commit_messages, spawn_cmd};
 use std::env::args;
 use std::error::Error;
@@ -25,30 +26,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	let mut git_args: Vec<String> = vec!["git".to_string(), "commit".to_string()]; // TODO: remove git
 
 	if !args.contains(&String::from("-m")) && !args.contains(&String::from("--message")) {
-		let prompt = format!(
-			"This is a diff from a recent change of a library. Explain what was changed as concise as possible.\n{}",
-			diff
-		);
+		let prompt =
+			format!("This is a diff from a recent change in my code. Write a commit message for this diff.\n{}", diff);
 		let client = reqwest::Client::new();
 		let answer = get_commit_messages(&client, api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
 
-		let items: Vec<String> = answer.choices.iter().map(|choice| choice.text.trim().to_string()).collect();
+		let items: Vec<String> = answer
+			.choices
+			.iter()
+			.map(|choice| choice.text.trim().to_string().replace("\"", "`").replace("Commit: ", ""))
+			.collect();
 		let selection = Select::with_theme(&ColorfulTheme::default())
 			.with_prompt("Which commit message do you prefer?")
 			.items(&items)
 			.default(0)
 			.report(false)
+			.max_length(50)
 			.clear(true)
 			.interact()?;
 
-		if let Some(msg) =
-			Editor::new().require_save(false).extension("txt").edit(&items[selection].replace('"', "\\\"")).unwrap()
-		{
-			git_args.push("--message".into());
-			git_args.push(format!("\"{}\"", msg));
-		} else {
-			std::process::exit(exitcode::NOINPUT);
-		}
+		let msg = edit(items[selection].replace('"', "\\\""))?;
+		git_args.push("--message".into());
+		git_args.push(format!("\"{}\"", msg));
 	}
 
 	// passing through all flags to git commit
