@@ -57,5 +57,5 @@ pub fn spawn_cmd(cmd: &str, args: &[String]) -> String {
 #[test]
 fn test_spawn_cmd() {
 	let output = spawn_cmd("echo", &["test".to_string()]);
-	assert_eq!(output, String::from("test\n"));
+	assert_eq!(output.trim(), String::from("test"));
 }
