@@ -32,9 +32,6 @@ jobs:
           components: rustfmt, clippy
           args: --manifest-path ./Cargo.toml
 
-      - name: Run Makefile
-        run: make
-
       - name: Tree files
         run: |
           sudo apt-get -y install tree & which tree
