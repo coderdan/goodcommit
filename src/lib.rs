@@ -53,3 +53,9 @@ pub fn spawn_cmd(cmd: &str, args: &[String]) -> String {
 
 	String::from_utf8(output.stdout).expect("")
 }
+
+#[test]
+fn test_spawn_cmd() {
+	let output = spawn_cmd("echo", &["test".to_string()]);
+	assert_eq!(output, String::from("test\n"));
+}
