@@ -35,6 +35,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	if !args.contains(&String::from("-m")) && !args.contains(&String::from("--message")) {
 		let prompt =
 			format!("This is a diff from a recent change in my code. Write a commit message for this diff.\n{}", diff);
+		if prompt.len() > 15026 {
+			println!("The diff is too large for this tool.\nStage less files or commit with \"git commit\" directly.");
+			std::process::exit(exitcode::USAGE);
+		}
 		let client = reqwest::Client::new();
 		let answer = get_commit_messages(&client, &api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
 
