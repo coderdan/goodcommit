@@ -22,10 +22,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		std::process::exit(exitcode::NOINPUT);
 	}
 
-	let api_key = env::var("API_KEY").unwrap_or_else(|_| String::from("unset"));
+	let api_key = env::var("GPT_API_KEY").unwrap_or_else(|_| String::from("unset"));
 
 	if api_key == "unset".to_string() {
-		println!("Please set the API_KEY environment variable.");
+		println!("Please set the GPT_API_KEY environment variable.");
 		std::process::exit(exitcode::NOINPUT);
 	}
 
@@ -41,7 +41,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		let items: Vec<String> = answer
 			.choices
 			.iter()
-			.map(|choice| choice.text.trim().to_string().replace("\"", "`").replace("Commit: ", ""))
+			.map(|choice| {
+				choice.text.replace("\"", "`").replace("Commit:", "").replace("Commit message:", "").trim().to_string()
+			})
 			.collect();
 		let selection = Select::with_theme(&ColorfulTheme::default())
 			.with_prompt("Which commit message do you prefer?")
