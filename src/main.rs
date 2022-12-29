@@ -1,27 +1,34 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use edit::edit;
 use git_busy::{get_commit_messages, spawn_cmd};
+use std::env;
 use std::env::args;
 use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+	let is_nocolor = env::var("NO_COLOR").unwrap_or_else(|_| String::from("unset")) != String::from("unset");
 	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
 
 	if diff.len() == 0 {
-		let output = spawn_cmd(
-			"git",
-			&[
-				"-c".to_string(),
-				"color.status=always".to_string(),
-				"status".to_string(),
-			],
-		);
+		let flags: Vec<String> = if is_nocolor {
+			vec!["status".into()]
+		} else {
+			vec!["-c".into(), "color.status=always".into(), "status".into()]
+		};
+
+		let output = spawn_cmd("git", &flags);
 		println!("{}", output);
 		std::process::exit(exitcode::NOINPUT);
 	}
 
-	let api_key = "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";
+	let api_key = env::var("API_KEY").unwrap_or_else(|_| String::from("unset"));
+
+	if api_key == "unset".to_string() {
+		println!("Please set the API_KEY environment variable.");
+		std::process::exit(exitcode::NOINPUT);
+	}
+
 	let args = args().collect::<Vec<String>>();
 	let mut git_args: Vec<String> = vec!["git".to_string(), "commit".to_string()]; // TODO: remove git
 
@@ -29,7 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		let prompt =
 			format!("This is a diff from a recent change in my code. Write a commit message for this diff.\n{}", diff);
 		let client = reqwest::Client::new();
-		let answer = get_commit_messages(&client, api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
+		let answer = get_commit_messages(&client, &api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
 
 		let items: Vec<String> = answer
 			.choices
