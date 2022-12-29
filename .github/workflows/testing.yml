@@ -1,0 +1,87 @@
+name: Testing
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  # ***********
+  # Linting
+  # ***********
+  lint-rust:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          args: --manifest-path ./Cargo.toml
+
+      - name: Run Makefile
+        run: make
+
+      - name: Tree files
+        run: |
+          sudo apt-get -y install tree & which tree
+          tree -I "node_modules*|.git*"
+
+      - name: Check formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path ./Cargo.toml -- --check
+
+      - name: Annotate commit with clippy warnings
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --manifest-path ./Cargo.toml
+
+      # disabled until https://github.com/actions-rs/audit-check/issues/194 is fixed
+      # - name: Security audit
+      #   uses: actions-rs/audit-check@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ***********
+  # Testing
+  # ***********
+  test-rust:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      OS: ${{ matrix.OS }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Run cargo tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-fail-fast --manifest-path ./Cargo.toml -- --nocapture
