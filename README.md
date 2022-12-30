@@ -7,7 +7,7 @@
    ╚═════╝  ╚═╝    ╚═╝        ╚═════╝   ╚═════╝  ╚══════╝    ╚═╝
 ```
 
-<p align="center"><img src="https://raw.githubusercontent.com/coderdan/goodcommit/main/assets/git-busy.png" alt="git busy cli interface"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/coderdan/goodcommit/main/assets/git-busy.gif" alt="git busy cli interface"></p>
 <p align="center">Let the computer write the commit message for you</p>
 
 ## What it does
