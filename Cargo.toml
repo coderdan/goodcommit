@@ -19,6 +19,7 @@ tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
 dialoguer = "0.10.2"
 edit = "0.1.4"
 exitcode = "1.1.2"
+spinners = "4.1.0"
 
 [dev-dependencies]
 temp-env = "0.3.1"

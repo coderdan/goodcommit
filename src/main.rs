@@ -1,6 +1,7 @@
 use dialoguer::{theme::ColorfulTheme, Select};
 use edit::edit;
 use git_busy::{check_diff_get_error, get_api_key, get_commit_messages, spawn_cmd};
+use spinners::{Spinner, Spinners};
 use std::env::args;
 use std::error::Error;
 
@@ -31,8 +32,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 			println!("The diff is too large for this tool.\nStage less files or commit with \"git commit\" directly.");
 			std::process::exit(exitcode::USAGE);
 		}
+		let mut sp = Spinner::new(Spinners::Dots9, "Asking GPT3 to write the commit message".into());
 		let client = reqwest::Client::new();
 		let answer = get_commit_messages(&client, &api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
+		sp.stop();
 
 		let items: Vec<String> = answer
 			.choices
