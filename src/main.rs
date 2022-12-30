@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	}
 
 	let args = args().collect::<Vec<String>>();
-	let mut git_args: Vec<String> = vec!["commit".to_string()];
+	let mut git_args: Vec<String> = vec!["commit".to_string()]; // all args to be passed on to `git commit`
 
 	if !args.contains(&String::from("-m")) && !args.contains(&String::from("--message")) {
 		let prompt =
@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 		let client = reqwest::Client::new();
 		let answer = get_commit_messages(&client, &api_key, "text-davinci-003", &prompt, 0.8, 200, 3).await?;
 		sp.stop();
-		print!("\x1b[2K\n\x1b[2F\n");
+		print!("\x1b[2K\n\x1b[2F\n"); // to clear the spinner and erase the line
 
 		let items: Vec<String> = answer
 			.choices
@@ -54,12 +54,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 			.clear(true)
 			.interact()?;
 
+		// open your default editor as git would do
 		let msg = edit(items[selection].replace('"', "\\\""))?;
 		git_args.push("--message".into());
 		git_args.push(msg.trim().to_string());
 	}
 
-	// passing through all flags to git commit
+	// we ignore the first argument as that's the path to the binary
 	for item in args.iter().skip(1) {
 		git_args.push(item.to_string());
 	}
