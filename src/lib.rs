@@ -78,8 +78,8 @@ pub fn check_diff_get_error(diff: &str) -> String {
 
 #[test]
 fn test_check_diff_get_error() {
-	assert!(check_diff_get_error(&"").len() > 0);
-	assert!(check_diff_get_error(&".").len() == 0);
+	assert!(check_diff_get_error("").len() > 0);
+	assert!(check_diff_get_error(".").len() == 0);
 }
 
 pub fn get_api_key() -> String {
