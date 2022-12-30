@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 		let msg = edit(items[selection].replace('"', "\\\""))?;
 		git_args.push("--message".into());
-		git_args.push(format!("\"{}\"", msg.trim()));
+		git_args.push(msg.trim().to_string());
 	}
 
 	// passing through all flags to git commit
