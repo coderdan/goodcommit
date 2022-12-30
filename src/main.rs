@@ -7,7 +7,14 @@ use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-	let diff = spawn_cmd("git", &["diff".to_string(), "--staged".to_string()]);
+	let diff = spawn_cmd(
+		"git",
+		&[
+			"diff".to_string(),
+			"--staged".to_string(),
+			"--ignore-all-space".to_string(),
+		],
+	);
 
 	// check if there is a diff at all
 	let diff_error = check_diff_get_error(&diff);
