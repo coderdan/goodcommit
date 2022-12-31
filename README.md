@@ -12,10 +12,16 @@
 
 ## What it does
 
-This tool sends the output of `git diff --staged` to the GPT3 API and asks the model to write a commit message based off of the diff.
+> This tool helps you write commit messages
+
+![git history example](https://raw.githubusercontent.com/coderdan/goodcommit/main/assets/history.png)
+
+`git-busy` sends the output of `git diff --staged --ignore-all-space` to the GPT3 API and asks the model to write a commit message based off of the diff.
 It then allows you to choose from three suggestions and you will be able to edit before it calls `git commit`.
 
 If you supply a `-m` or `--message` flag GPT3 will not be consulted and instead your supplied message will be used for the commit.
+
+Use `git-busy` instead of `git commit`. All flags you write are passed on.
 
 ## Requirements
 
