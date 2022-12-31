@@ -2,9 +2,9 @@
 name = "git-busy"
 version = "1.0.0"
 edition = "2021"
-authors = ["Dan Draper <coderdan>", "Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
+authors = ["Dan Draper <dan@cipherstash.com>", "Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
 license = "GPL-3.0-or-later"
-description = "A wrapper around git commit that generates the commit messages for you"
+description = "A wrapper around \"git commit\" that generates the commit messages for you"
 readme = "README.md"
 homepage = "https://github.com/coderdan/goodcommit"
 repository = "https://github.com/coderdan/goodcommit"
